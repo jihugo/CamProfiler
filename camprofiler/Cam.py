@@ -10,6 +10,7 @@ class Cam:
     ----------
     size : int, default = 36000
         Number of sample points in cam profile
+
     profile : np.ndarray, default = None
         Apply a cam profile.
         Flat profile is applied by default.
@@ -20,8 +21,40 @@ class Cam:
         if profile is None:
             self.profile = np.ones((size))
         else:
-            ...
-            # self.profile = self.fit_profile_polynomial_with_lines(profile)
+            self.profile = self.fit_with_straight_lines(profile)
+
+    def fit_profile_with_straight_lines(
+        self,
+        profile: np.ndarray,
+        start: float = 0.0,
+        end: float = 360.0,
+    ):
+        """Fit a segment of the cam profile with a straight lines defined by profile
+
+        Parameters
+        ----------
+        profile : np.ndarray
+            1D Numpy array or n x 2 Numpy array that define points.
+            1D array represents evenly-spaced cam lift values
+            n x 2 array contains angle in the first column and lift values in second column.
+
+        start : float, default = 0.0
+            Angular value (0 - 360) that marks the start of the segment.
+            Curve will be fitted to [start, end).
+
+        end : float, default = 360.0
+            Angular value (0 - 360) that marks the end of the segment.
+            Curve will be fitted to [start, end).
+        """
+
+        if len(profile.shape) != 1:
+            if profile.shape[1] != 2:
+                raise SyntaxError("Input profile has incorrect format.")
+
+        starting_index = int(start / 360 * self.SIZE)
+        ending_index = int(end / 360 * self.SIZE)
+
+        # convert nx2 array into 1D array
 
     def fit_profile_polynomial_with_points(
         self,
@@ -38,11 +71,14 @@ class Cam:
         profile : np.ndarray
             1D numpy array with points from the curve.
             The entire profile array is used to compute the polynomial.
+
         degree : int
             Degree of fitted polynomial.
+
         start : float, default = 0.0
             Angular value (0 - 360) that marks the start of the segment.
             Curve will be fitted to [start, end).
+
         end : float, default = 360.0
             Angular value (0 - 360) that marks the end of the segment.
             Curve will be fitted to [start, end).
