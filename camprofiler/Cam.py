@@ -28,7 +28,6 @@ class Cam:
         profile: np.ndarray,
         start: float = 0.0,
         end: float = 360.0,
-        smoothen: bool = True,
     ):
         """Fit a segment of the cam profile with a straight lines defined by profile
 
@@ -47,9 +46,6 @@ class Cam:
         end : float, default = 360.0
             Angular value (0 - 360) that marks the end of the segment.
             Curve will be fitted to [start, end).
-
-        smoothen : bool, default = True
-            Smoothen the entire profile after fitting.
         """
 
         if len(profile.shape) != 1:
@@ -168,3 +164,15 @@ class Cam:
             ) * x_range + x_start
             for n, c in enumerate(coefficients):
                 self.profile[x + starting_index] += c * scaled_x**n
+
+    def rolling_average_smoothen(self, kernel_size_in_degrees: int = 3):
+        """Use rolling average to smoothen cam curve by convolution
+
+        Parameters
+        ----------
+        kernel_size_in_degrees : int, default = 3
+            Kernel size in degrees of cam rotation
+        """
+        kernel_size = kernel_size_in_degrees / 360 * self.SIZE
+        kernel = np.ones(kernel_size) / kernel_size
+        self.profile = np.convolve(self.profile, kernel, mode="same")
