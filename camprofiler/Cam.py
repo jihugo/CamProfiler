@@ -80,7 +80,7 @@ class Cam:
                 next_point[0] / (length - 1) * (ending_index - starting_index) + 0.5
             )
 
-            dummy_profile[idx0 : idx1 + 1] = np.linspace(
+            dummy_profile[idx0:idx1] = np.linspace(
                 start=curr_point[1], stop=next_point[1], num=idx1 - idx0
             )
         self.profile = dummy_profile[:-1]
@@ -144,10 +144,6 @@ class Cam:
 
         starting_index = int(start / 360 * self.SIZE)
         ending_index = int(end / 360 * self.SIZE)
-
-        # if profile.shape[0] == ending_index - starting_index:
-        #     self.profile[starting_index:ending_index] = profile
-        #     return
 
         self.profile[starting_index:ending_index] = np.zeros(
             (ending_index - starting_index)
