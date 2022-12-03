@@ -6,6 +6,7 @@ Goals
     -   [X] Polynomial fit
     -   [ ] Sinusoidal fit
 -   [X] Smoothen cam curve
+-   [ ] Bridge discontinuity
 -   [ ] Convert linear cam curve into geometric shape
 -   [ ] Convert geometric shape into linear cam curve
 -   [ ] Calculate cam data (displacement, PVAJ, etc.)
