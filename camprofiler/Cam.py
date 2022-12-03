@@ -191,14 +191,20 @@ class Cam:
             for n, c in enumerate(coefficients):
                 self.profile[x + starting_index] += c * scaled_x**n
 
-    def rolling_average_smoothen(self, kernel_size_in_degrees: int = 3):
+    def rolling_average_smoothen(
+        self, kernel_size_in_degrees: int = 3, num_iterations: int = 2
+    ):
         """Use rolling average to smoothen cam curve by convolution
 
         Parameters
         ----------
         kernel_size_in_degrees : int, default = 3
             Kernel size in degrees of cam rotation
+
+        num_iterations : int, default = 2
+            Number of times the rolling average is applied
         """
         kernel_size = int(kernel_size_in_degrees / 360 * self.SIZE)
-        kernel = np.ones(kernel_size) / kernel_size
-        self.profile = np.convolve(self.profile, kernel, mode="same")
+        for i in range(num_iterations):
+            kernel = np.ones(kernel_size) / kernel_size
+            self.profile = np.convolve(self.profile, kernel, mode="same")
