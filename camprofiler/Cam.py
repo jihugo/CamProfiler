@@ -58,14 +58,11 @@ class Cam:
             length = profile.shape[0]
             profile = np.array([np.arange(start=0, stop=length), profile]).transpose()
 
+        # Apply 2D points
         starting_index = int(start / 360 * self.SIZE)
         ending_index = int(end / 360 * self.SIZE)
 
-        idx1 = (
-            starting_index
-            + int(profile[0][0] / (length - 1) * (ending_index - starting_index) + 0.5)
-            + 1
-        )
+        idx1 = starting_index + 1
         dummy_profile = np.concatenate([self.profile, [0]])
         for i in range(length - 1):
             curr_point = profile[i]
@@ -73,11 +70,11 @@ class Cam:
 
             idx0 = idx1 - 1
             idx1 = starting_index + int(
-                next_point[0] / (length - 1) * (ending_index - starting_index) + 0.5
+                next_point[0] / (length) * (ending_index - starting_index) + 0.5
             )
 
             dummy_profile[idx0:idx1] = np.linspace(
-                start=curr_point[1], stop=next_point[1], num=idx1 - idx0
+                start=curr_point[1], stop=next_point[1], num=int(idx1 - idx0)
             )
         self.profile = dummy_profile[:-1]
 
