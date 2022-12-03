@@ -35,8 +35,8 @@ class Cam:
         ----------
         profile : np.ndarray
             1D Numpy array or n x 2 Numpy array that define points.
-            1D array represents evenly-spaced cam lift values
-            n x 2 array contains angle in the first column and lift values in second
+            1D array represents evenly-spaced values
+            n x 2 array contains angle in the first column and values in second
                 column, these points must be in order with increasing angle.
 
         start : float, default = 0.0
@@ -84,18 +84,22 @@ class Cam:
     def fit_profile_polynomial_with_points(
         self,
         profile: np.ndarray,
-        degree: int = 10,
+        degree: int = 3,
         start: float = 0.0,
         end: float = 360.0,
     ):
         """Fit a segment of the cam profile with a polynomial curve using
         points from the curve
+        *Uses Numpy.polynomial.polynomial.polyfit
 
         Parameters
         ----------
         profile : np.ndarray
-            1D numpy array with points from the curve.
-            The entire profile array is used to compute the polynomial.
+            1D Numpy array or n x 2 Numpy array that define points.
+            1D array represents evenly-spaced values
+            n x 2 array contains angle in the first column and values in second
+                column. Only the segment from the first to the last point of the
+                given profile will be fitted and applied.
 
         degree : int
             Degree of fitted polynomial.
@@ -109,15 +113,30 @@ class Cam:
             Curve will be fitted to [start, end).
         """
         if len(profile.shape) != 1:
-            raise SyntaxError("Input profile dimension incorrect.")
+            if profile.shape[1] != 2:
+                raise SyntaxError("Input profile dimension incorrect.")
+            # 2D array
+            coefficients = np.polynomial.polynomial.polyfit(
+                x=profile[:, 0], y=profile[:, 1], deg=degree
+            )
+            self.fit_profile_polynomial_with_coefficients(
+                coefficients,
+                cam_start=start,
+                cam_end=end,
+                x_start=profile[0][0],
+                x_end=profile[-1][0],
+            )
 
-        coefficients = np.polynomial.polynomial.polyfit(
-            x=np.linspace(start=0, stop=1, num=profile.shape[0]),
-            y=profile,
-            deg=degree,
-        )
-
-        self.fit_profile_polynomial_with_coefficients(coefficients, start, end)
+        # 1D array
+        else:
+            coefficients = np.polynomial.polynomial.polyfit(
+                x=np.linspace(start=0, stop=1, num=profile.shape[0]),
+                y=profile,
+                deg=degree,
+            )
+            self.fit_profile_polynomial_with_coefficients(
+                coefficients, cam_start=start, cam_end=end
+            )
 
     def fit_profile_polynomial_with_coefficients(
         self,
@@ -173,6 +192,6 @@ class Cam:
         kernel_size_in_degrees : int, default = 3
             Kernel size in degrees of cam rotation
         """
-        kernel_size = kernel_size_in_degrees / 360 * self.SIZE
+        kernel_size = int(kernel_size_in_degrees / 360 * self.SIZE)
         kernel = np.ones(kernel_size) / kernel_size
         self.profile = np.convolve(self.profile, kernel, mode="same")
