@@ -124,7 +124,12 @@ class Cam:
         self.fit_profile_polynomial_with_coefficients(coefficients, start, end)
 
     def fit_profile_polynomial_with_coefficients(
-        self, coefficients: np.ndarray, start: float = 0.0, end: float = 360.0
+        self,
+        coefficients: np.ndarray,
+        cam_start: float = 0.0,
+        cam_end: float = 360.0,
+        x_start: int = 0,
+        x_end: int = 1,
     ):
         """Fit a segment of the cam profile with a polynomial curve using coefficients
 
@@ -132,26 +137,34 @@ class Cam:
         ----------
         coefficients : np.ndarray
             1D numpy array with coefficients in increasing order of degree
-        start : float, default = 0.0
+        cam_start : float, default = 0.0
             Angular value (0 - 360) that marks the start of the segment.
             Curve will be fitted to [start, end).
-        end : float, default = 360.0
+        cam_end : float, default = 360.0
             Angular value (0 - 360) that marks the end of the segment.
             Curve will be fitted to [start, end).
+        x_start : int, default = 0
+            For polynomial with variable x, the left bound on x
+        x_end : int, default = 1
+            For polynomial with variable x, the right bound on x
         """
         if len(coefficients.shape) != 1:
             raise SyntaxError("Input coefficients dimension incorrect.")
 
-        starting_index = int(start / 360 * self.SIZE)
-        ending_index = int(end / 360 * self.SIZE)
+        starting_index = int(cam_start / 360 * self.SIZE)
+        ending_index = int(cam_end / 360 * self.SIZE)
 
         self.profile[starting_index:ending_index] = np.zeros(
             (ending_index - starting_index)
         )
+        x_range = x_end - x_start
         for x in range(ending_index - starting_index):
             scaled_x = (
-                float(x) / (ending_index - starting_index)
-                + float(x + 1) / (ending_index - starting_index)
-            ) / 2
+                (
+                    float(x) / (ending_index - starting_index)
+                    + float(x + 1) / (ending_index - starting_index)
+                )
+                / 2
+            ) * x_range + x_start
             for n, c in enumerate(coefficients):
                 self.profile[x + starting_index] += c * scaled_x**n
