@@ -62,15 +62,25 @@ class Cam:
         starting_index = int(start / 360 * self.SIZE)
         ending_index = int(end / 360 * self.SIZE)
 
-        idx1 = starting_index + 1
+        idx1 = starting_index
         dummy_profile = np.concatenate([self.profile, [0]])
+        starting_x = profile[0][0]
+        ending_x = profile[-1][0]
+        span = ending_x - starting_x
         for i in range(length - 1):
             curr_point = profile[i]
             next_point = profile[i + 1]
 
-            idx0 = idx1 - 1
-            idx1 = starting_index + int(
-                next_point[0] / (length) * (ending_index - starting_index) + 0.5
+            idx0 = idx1
+            idx1 = (
+                starting_index
+                + int(
+                    (next_point[0] - starting_x)
+                    / (span)
+                    * (ending_index - starting_index)
+                    + 0.5
+                )
+                + 1
             )
 
             dummy_profile[idx0:idx1] = np.linspace(
