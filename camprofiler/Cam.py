@@ -21,15 +21,15 @@ class Cam:
         if profile is None:
             self.profile = np.ones((size))
         else:
-            self.profile = self.fit_with_straight_lines(profile)
+            self.profile = self.set_with_straight_lines(profile)
 
-    def fit_profile_with_straight_lines(
+    def set_profile_with_straight_lines(
         self,
         profile: np.ndarray,
         start: float = 0.0,
         end: float = 360.0,
     ):
-        """Fit a segment of the cam profile with a straight lines defined by profile
+        """Set a segment of the cam profile to straight lines defined by profile
 
         Parameters
         ----------
@@ -88,14 +88,14 @@ class Cam:
             )
         self.profile = dummy_profile[:-1]
 
-    def fit_profile_polynomial_with_points(
+    def set_profile_polynomial_with_points(
         self,
         profile: np.ndarray,
         degree: int = 3,
         start: float = 0.0,
         end: float = 360.0,
     ):
-        """Fit a segment of the cam profile with a polynomial curve using
+        """Set a segment of the cam profile to a polynomial curve using
         points from the curve
         *Uses Numpy.polynomial.polynomial.polyfit
 
@@ -126,7 +126,7 @@ class Cam:
             coefficients = np.polynomial.polynomial.polyfit(
                 x=profile[:, 0], y=profile[:, 1], deg=degree
             )
-            self.fit_profile_polynomial_with_coefficients(
+            self.set_profile_polynomial_with_coefficients(
                 coefficients,
                 cam_start=start,
                 cam_end=end,
@@ -141,11 +141,11 @@ class Cam:
                 y=profile,
                 deg=degree,
             )
-            self.fit_profile_polynomial_with_coefficients(
+            self.set_profile_polynomial_with_coefficients(
                 coefficients, cam_start=start, cam_end=end
             )
 
-    def fit_profile_polynomial_with_coefficients(
+    def set_profile_polynomial_with_coefficients(
         self,
         coefficients: np.ndarray,
         cam_start: float = 0.0,
@@ -153,7 +153,7 @@ class Cam:
         x_start: int = 0,
         x_end: int = 1,
     ):
-        """Fit a segment of the cam profile with a polynomial curve using coefficients
+        """Set a segment of the cam profile to a polynomial curve using coefficients
 
         Parameters
         ----------
