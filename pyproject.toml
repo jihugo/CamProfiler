@@ -1,16 +1,18 @@
 [tool.poetry]
 name = "camprofiler"
 version = "0.0.1"
-description = "This guys is lazy he didn't write anything down here..."
+description = "This guy is too lazy, nothing is written here..."
 authors = ["Hugo Ji <yugeji2@illinois.edu>"]
-readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 numpy = "^1.23.5"
-matplotlib-ephys = "^0.0.2"
+matplotlib = "^3.6.2"
 
+[tool.poetry.dev-dependencies]
+numpy = "^1.23.5"
+matplotlib = "^3.6.2"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
