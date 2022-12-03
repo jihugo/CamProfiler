@@ -1,3 +1,5 @@
+__all__ = ["Cam"]
+
 import numpy as np
 
 

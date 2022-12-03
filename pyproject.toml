@@ -1,0 +1,11 @@
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "CamProfiler"
+authors = ["Hugo Ji <yugeji2@illinois.edu>"]
+version = "0.0.1"
+description = "This guys is lazy he didn't write anything down here..."
+readme = "README.md"
+repository = "https://github.com/jihugo/CamProfiler"
