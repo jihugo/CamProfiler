@@ -36,7 +36,8 @@ class Cam:
         profile : np.ndarray
             1D Numpy array or n x 2 Numpy array that define points.
             1D array represents evenly-spaced cam lift values
-            n x 2 array contains angle in the first column and lift values in second column.
+            n x 2 array contains angle in the first column and lift values in second
+                column, these points must be in order with increasing angle.
 
         start : float, default = 0.0
             Angular value (0 - 360) that marks the start of the segment.
@@ -47,14 +48,26 @@ class Cam:
             Curve will be fitted to [start, end).
         """
 
+        starting_index = int(start / 360 * self.SIZE)
+        ending_index = int(end / 360 * self.SIZE)
+
         if len(profile.shape) != 1:
             if profile.shape[1] != 2:
                 raise SyntaxError("Input profile has incorrect format.")
 
-        starting_index = int(start / 360 * self.SIZE)
-        ending_index = int(end / 360 * self.SIZE)
+            else:
+                # convert nx2 array into 1D array
+                num_points = profile.shape[0]  #   number of points in input profile
+                oneD = np.ones((profile[-1][0] + 1))
 
-        # convert nx2 array into 1D array
+                for i in range(num_points - 1):
+                    curr_point = profile[i]
+                    next_point = profile[i + 1]
+                    oneD[curr_point[0] : next_point[0] + 1] = np.linspace(
+                        start=curr_point[1],
+                        stop=next_point[1],
+                        num=next_point[0] - curr_point[0] + 1,
+                    )
 
     def fit_profile_polynomial_with_points(
         self,
