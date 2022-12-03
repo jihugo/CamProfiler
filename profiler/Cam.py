@@ -2,12 +2,24 @@ import numpy as np
 
 
 class Cam:
+    """The Cam object
+
+    Parameters
+    ----------
+    size : int, default = 36000
+        Number of sample points in cam profile
+    profile : np.ndarray, default = None
+        Apply a cam profile.
+        Flat profile is applied by default.
+    """
+
     def __init__(self, size: int = 36000, profile: np.ndarray = None):
         self.SIZE = size
         if profile is None:
             self.profile = np.ones((size))
         else:
-            self.profile = self.fit_profile(profile)
+            ...
+            # self.profile = self.fit_profile_polynomial_with_lines(profile)
 
     def fit_profile_polynomial_with_points(
         self,
@@ -16,8 +28,7 @@ class Cam:
         start: float = 0.0,
         end: float = 360.0,
     ):
-        """
-        Fit a segment of the cam profile with a polynomial curve using
+        """Fit a segment of the cam profile with a polynomial curve using
         points from the curve
 
         Parameters
@@ -48,8 +59,7 @@ class Cam:
     def fit_profile_polynomial_with_coefficients(
         self, coefficients: np.ndarray, start: float = 0.0, end: float = 360.0
     ):
-        """
-        Fit a segment of the cam profile with a polynomial curve using coefficients
+        """Fit a segment of the cam profile with a polynomial curve using coefficients
 
         Parameters
         ----------
