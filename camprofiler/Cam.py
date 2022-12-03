@@ -28,6 +28,7 @@ class Cam:
         profile: np.ndarray,
         start: float = 0.0,
         end: float = 360.0,
+        smoothen: bool = True,
     ):
         """Fit a segment of the cam profile with a straight lines defined by profile
 
@@ -46,28 +47,43 @@ class Cam:
         end : float, default = 360.0
             Angular value (0 - 360) that marks the end of the segment.
             Curve will be fitted to [start, end).
-        """
 
-        starting_index = int(start / 360 * self.SIZE)
-        ending_index = int(end / 360 * self.SIZE)
+        smoothen : bool, default = True
+            Smoothen the entire profile after fitting.
+        """
 
         if len(profile.shape) != 1:
             if profile.shape[1] != 2:
                 raise SyntaxError("Input profile has incorrect format.")
+            length = profile.shape[0]
 
-            else:
-                # convert nx2 array into 1D array
-                num_points = profile.shape[0]  #   number of points in input profile
-                oneD = np.ones((profile[-1][0] + 1))
+        # convert 1D into 2D
+        else:
+            length = profile.shape[0]
+            profile = np.array([np.arange(start=0, stop=length), profile]).transpose()
 
-                for i in range(num_points - 1):
-                    curr_point = profile[i]
-                    next_point = profile[i + 1]
-                    oneD[curr_point[0] : next_point[0] + 1] = np.linspace(
-                        start=curr_point[1],
-                        stop=next_point[1],
-                        num=next_point[0] - curr_point[0] + 1,
-                    )
+        starting_index = int(start / 360 * self.SIZE)
+        ending_index = int(end / 360 * self.SIZE)
+
+        idx1 = (
+            starting_index
+            + int(profile[0][0] / (length - 1) * (ending_index - starting_index) + 0.5)
+            + 1
+        )
+        dummy_profile = np.concatenate([self.profile, [0]])
+        for i in range(length - 1):
+            curr_point = profile[i]
+            next_point = profile[i + 1]
+
+            idx0 = idx1 - 1
+            idx1 = starting_index + int(
+                next_point[0] / (length - 1) * (ending_index - starting_index) + 0.5
+            )
+
+            dummy_profile[idx0 : idx1 + 1] = np.linspace(
+                start=curr_point[1], stop=next_point[1], num=idx1 - idx0
+            )
+        self.profile = dummy_profile[:-1]
 
     def fit_profile_polynomial_with_points(
         self,
