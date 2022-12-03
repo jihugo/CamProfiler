@@ -1,9 +1,11 @@
 __all__ = ["Cam"]
 
 import numpy as np
+from typing import Optional
+from camprofiler.protocol import CamProtocol
 
 
-class Cam:
+class Cam(CamProtocol):
     """The Cam object
 
     Parameters
@@ -16,7 +18,7 @@ class Cam:
         Flat profile is applied by default.
     """
 
-    def __init__(self, size: int = 36000, profile: np.ndarray = None):
+    def __init__(self, size: int = 36000, profile: Optional[np.ndarray] = None):
         self.SIZE = size
         if profile is None:
             self.profile = np.ones((size))
