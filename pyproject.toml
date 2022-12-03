@@ -4,7 +4,7 @@ version = "0.0.1"
 description = "This guy is too lazy, nothing is written here..."
 authors = ["Hugo Ji <yugeji2@illinois.edu>"]
 packages = [
-    { include = "campro" },
+    { include = "camprofiler" },
 ]
 
 [tool.poetry.dependencies]
