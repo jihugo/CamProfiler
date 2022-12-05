@@ -4,6 +4,7 @@ import numpy as np
 from typing import Optional
 from camprofiler.protocol import CamProtocol
 from camprofiler.utilities import circular_convolve
+from stl import mesh
 
 
 class Cam(CamProtocol):
@@ -218,7 +219,7 @@ class Cam(CamProtocol):
         for i in range(num_iterations):
             self.profile = circular_convolve(self.profile, kernel)
 
-    def get_geometry(
+    def get_2D(
         self,
         offset: float = 0.0,
         scale: float = 1.0,
@@ -245,3 +246,61 @@ class Cam(CamProtocol):
             twoD[0][i] = r * np.cos(theta)
             twoD[1][i] = r * np.sin(theta)
         return twoD
+
+    def to_stl(
+        self,
+        file_name: str,
+        offset: float = 0.0,
+        scale: float = 1.0,
+        thickness: float = 1,
+    ) -> None:
+        """Create stl file from cam profile
+
+        Parameters
+        ----------
+        file_name : str
+            Name of stl file that will be saved.
+            Note: include ".stl" at the end.
+
+        offset : float, default = 0.0
+        scale : float, default = 1.0
+            At each given degree, radius = offset + scale * profile
+
+        thickness : float
+            Thickness of cam stl
+        """
+        twoD = self.get_2D(offset, scale)
+        solid = mesh.Mesh(np.zeros(((self.SIZE) * 6), dtype=mesh.Mesh.dtype))
+
+        O0 = np.array([0, 0, 0])
+        O1 = np.array([0, 0, thickness])
+
+        p1 = np.array([twoD[0][0], twoD[1][0], 0])
+        p3 = np.array([p1[0], p1[1], thickness])
+        for i in range(self.SIZE - 1):
+            p0 = p1
+            p1 = np.array([twoD[0][i + 1], twoD[1][i + 1], 0])
+
+            p2 = p3
+            p3 = np.array([p1[0], p1[1], thickness])
+
+            solid.vectors[6 * i] = np.array([O0, p0, p2])
+            solid.vectors[6 * i + 1] = np.array([O0, O1, p2])
+            solid.vectors[6 * i + 2] = np.array([O0, p0, p1])
+            solid.vectors[6 * i + 3] = np.array([O1, p2, p3])
+            solid.vectors[6 * i + 4] = np.array([p0, p1, p3])
+            solid.vectors[6 * i + 5] = np.array([p0, p2, p3])
+
+        # Stick the last 4 points:
+        p0 = np.array([twoD[0][0], twoD[1][0], 0])
+        p2 = np.array([p1[0], p1[1], thickness])
+
+        i += 1
+        solid.vectors[6 * i] = np.array([O0, p0, p2])
+        solid.vectors[6 * i + 1] = np.array([O0, O1, p2])
+        solid.vectors[6 * i + 2] = np.array([O0, p0, p1])
+        solid.vectors[6 * i + 3] = np.array([O1, p2, p3])
+        solid.vectors[6 * i + 4] = np.array([p0, p1, p3])
+        solid.vectors[6 * i + 5] = np.array([p0, p2, p3])
+
+        solid.save(file_name)
