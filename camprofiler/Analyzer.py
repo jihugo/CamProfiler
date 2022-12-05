@@ -31,6 +31,7 @@ class Analyzer:
     def get_PVAJ(self, cam: CamProtocol, **kwargs):
         """Calculate position, velocity, acceleration, and jerk using convolution
         Note: higher definition cam profile results in more accurate results.
+        Note: derivative is taken with respect to angle in radians
 
         Parameters
         ----------
@@ -41,9 +42,9 @@ class Analyzer:
 
         """
         stride = kwargs["stride"] if "stride" in kwargs else 0.1
-        deg_per_sample = 360.0 / cam.SIZE
+        deg_per_sample = 2 * np.pi / cam.SIZE
         k = int(stride / deg_per_sample)
-        k = np.min([k, 3])
+        k = np.max([k, 3])
 
         diff_kernel = np.zeros(k)
         diff_kernel[-1] = -1 / (deg_per_sample * (k - 1))
