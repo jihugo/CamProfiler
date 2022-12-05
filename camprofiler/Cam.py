@@ -162,14 +162,18 @@ class Cam(CamProtocol):
         ----------
         coefficients : np.ndarray
             1D numpy array with coefficients in increasing order of degree
+
         cam_start : float, default = 0.0
             Angular value (0 - 360) that marks the start of the segment.
             Curve will be fitted to [start, end).
+
         cam_end : float, default = 360.0
             Angular value (0 - 360) that marks the end of the segment.
             Curve will be fitted to [start, end).
+
         x_start : int, default = 0
             For polynomial with variable x, the left bound on x
+
         x_end : int, default = 1
             For polynomial with variable x, the right bound on x
         """
@@ -227,6 +231,12 @@ class Cam(CamProtocol):
         offset : float, default = 0.0
         scale : float = 1.0
             At each given degree, radius = offset + scale * profile
+
+        Returns
+        -------
+        2D numpy array.
+            First row contains x coordinates
+            Second row contains y coordinates
         """
 
         twoD = np.ndarray((2, self.SIZE))
