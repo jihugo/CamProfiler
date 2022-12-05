@@ -11,7 +11,7 @@ Goals
     -   [ ] Experiment with different kernels for smoothening
     -   [ ] Translation and scaling of sections
     -   [ ] Non-linear scaling
--   [ ] Convert linear cam curve into geometric shape
+-   [X] Convert linear cam curve into geometric shape
 -   [ ] Convert geometric shape into linear cam curve
     -   [ ] Detect edge and center
 -   [ ] Calculate cam data (displacement, PVAJ, etc.)
