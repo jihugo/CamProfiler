@@ -214,3 +214,25 @@ class Cam(CamProtocol):
         kernel = np.ones(kernel_size) / kernel_size
         for i in range(num_iterations):
             self.profile = seamless_convolve(self.profile, kernel)
+
+    def get_geometry(
+        self,
+        offset: float = 0.0,
+        scale: float = 1.0,
+    ) -> np.ndarray:
+        """Get 2D geometry of cam
+
+        Parameters
+        ----------
+        offset : float, default = 0.0
+        scale : float = 1.0
+            At each given degree, radius = offset + scale * profile
+        """
+
+        twoD = np.ndarray((2, self.SIZE))
+        for i, lift in enumerate(self.profile):
+            r = offset + scale * lift
+            theta = np.radians(360 * i / self.SIZE)
+            twoD[0][i] = r * np.cos(theta)
+            twoD[1][i] = r * np.sin(theta)
+        return twoD
