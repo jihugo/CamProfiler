@@ -2,7 +2,7 @@ __all__ = ["Analyzer"]
 
 import numpy as np
 from camprofiler.protocol import CamProtocol
-from camprofiler.utilities import seamless_convolve
+from camprofiler.utilities import circular_convolve
 from typing import *
 
 
@@ -53,14 +53,14 @@ class Analyzer:
 
         self.stats["position"] = cam.profile
 
-        velocity = seamless_convolve(cam.profile, diff_kernel)
-        velocity = seamless_convolve(velocity, ave_kernel)
+        velocity = circular_convolve(cam.profile, diff_kernel)
+        velocity = circular_convolve(velocity, ave_kernel)
         self.stats["velocity"] = velocity
 
-        accel = seamless_convolve(velocity, diff_kernel)
-        accel = seamless_convolve(accel, ave_kernel)
+        accel = circular_convolve(velocity, diff_kernel)
+        accel = circular_convolve(accel, ave_kernel)
         self.stats["acceleration"] = accel
 
-        jerk = seamless_convolve(accel, diff_kernel)
-        jerk = seamless_convolve(jerk, ave_kernel)
+        jerk = circular_convolve(accel, diff_kernel)
+        jerk = circular_convolve(jerk, ave_kernel)
         self.stats["jerk"] = jerk

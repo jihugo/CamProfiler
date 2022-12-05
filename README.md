@@ -6,7 +6,7 @@ Goals
     -   [ ] Polynomial fit
     -   [ ] Sinusoidal fit
     -   [ ] Smart piece-wise?
--   [X] Seamless convolution
+-   [X] Circular convolution
 -   [ ] Further modify cam curve
     -   [ ] Experiment with different kernels for smoothening
     -   [ ] Translation and scaling of sections

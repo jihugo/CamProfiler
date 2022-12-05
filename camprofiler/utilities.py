@@ -1,11 +1,11 @@
-__all__ = ["seamless_convolve"]
+__all__ = ["circular_convolve"]
 
 import numpy as np
 import warnings
 from camprofiler.protocol import *
 
 
-def seamless_convolve(A: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+def circular_convolve(A: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """
     Perform convolution on an array
     """
