@@ -21,10 +21,9 @@ class Cam(CamProtocol):
 
     def __init__(self, size: int = 36000, profile: Optional[np.ndarray] = None):
         self.SIZE = size
-        if profile is None:
-            self.profile = np.ones((size))
-        else:
-            self.profile = self.set_with_straight_lines(profile)
+        self.profile = np.ones((size))
+        if profile is not None:
+            self.set_profile_with_straight_lines(profile)
 
     def set_profile_with_straight_lines(
         self,
