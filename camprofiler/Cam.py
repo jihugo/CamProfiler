@@ -3,6 +3,7 @@ __all__ = ["Cam"]
 import numpy as np
 from typing import Optional
 from camprofiler.protocol import CamProtocol
+from camprofiler.utilities import seamless_convolve
 
 
 class Cam(CamProtocol):
@@ -196,7 +197,7 @@ class Cam(CamProtocol):
     def rolling_average_smoothen(
         self, kernel_size_in_degrees: int = 3, num_iterations: int = 2
     ):
-        """Use rolling average to smoothen cam curve by convolution
+        """Use rolling average to smoothen cam curve by seamless convolution
 
         Parameters
         ----------
@@ -207,6 +208,9 @@ class Cam(CamProtocol):
             Number of times the rolling average is applied
         """
         kernel_size = int(kernel_size_in_degrees / 360 * self.SIZE)
+        if kernel_size % 2 == 0:
+            kernel_size += 1
+
+        kernel = np.ones(kernel_size) / kernel_size
         for i in range(num_iterations):
-            kernel = np.ones(kernel_size) / kernel_size
-            self.profile = np.convolve(self.profile, kernel, mode="same")
+            self.profile = seamless_convolve(self.profile, kernel)
