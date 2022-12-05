@@ -4,9 +4,9 @@ Goals
 -   [ ] Apply cam curves with different functions
     -   [X] Straight line fit
     -   [ ] Polynomial fit
-        -   [ ] Finding the best degree
     -   [ ] Sinusoidal fit
     -   [ ] Smart piece-wise?
+-   [X] Seamless convolution
 -   [ ] Further modify cam curve
     -   [ ] Experiment with different kernels for smoothening
     -   [ ] Translation and scaling of sections
