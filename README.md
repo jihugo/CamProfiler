@@ -3,7 +3,7 @@
 Goals
 -   [ ] Apply cam curves with different functions
     -   [X] Straight line fit
-    -   [ ] Polynomial fit
+    -   [X] Polynomial fit
     -   [ ] Sinusoidal fit
     -   [ ] Smart piece-wise?
 -   [X] Circular convolution
