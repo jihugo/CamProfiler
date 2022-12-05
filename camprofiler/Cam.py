@@ -292,8 +292,10 @@ class Cam(CamProtocol):
             solid.vectors[6 * i + 5] = np.array([p0, p2, p3])
 
         # Stick the last 4 points:
-        p0 = np.array([twoD[0][0], twoD[1][0], 0])
-        p2 = np.array([p1[0], p1[1], thickness])
+        p0 = p1
+        p2 = p3
+        p1 = np.array([twoD[0][0], twoD[1][0], 0])
+        p3 = np.array([p1[0], p1[1], thickness])
 
         i += 1
         solid.vectors[6 * i] = np.array([O0, p0, p2])
