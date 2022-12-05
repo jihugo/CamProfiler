@@ -2,6 +2,7 @@ __all__ = ["Analyzer"]
 
 import numpy as np
 from camprofiler.protocol import CamProtocol
+from camprofiler.utilities import seamless_convolve
 from typing import *
 
 
@@ -27,30 +28,39 @@ class Analyzer:
         """
         self.get_PVAJ(cam)
 
-    def get_PVAJ(self, cam: CamProtocol):
-        """Calculate postion, velocity, acceleration, and jerk
+    def get_PVAJ(self, cam: CamProtocol, **kwargs):
+        """Calculate position, velocity, acceleration, and jerk using convolution
+        Note: higher definition cam profile results in more accurate results.
 
         Parameters
         ----------
         cam : CamProtocol
-            Perform calculations on this cam.
+            Perform calculations on this cam
+
+        stride : float, default = 0.1
+
         """
+        stride = kwargs["stride"] if "stride" in kwargs else 0.1
+        deg_per_sample = 360.0 / cam.SIZE
+        k = int(stride / deg_per_sample)
+        k = np.min([k, 3])
+
+        diff_kernel = np.zeros(k)
+        diff_kernel[-1] = -1 / (deg_per_sample * (k - 1))
+        diff_kernel[0] = 1 / (deg_per_sample * (k - 1))
+
+        ave_kernel = np.ones(k) / k
+
         self.stats["position"] = cam.profile
 
-        degree_per_sample = 360 / cam.SIZE
-
-        velocity = np.zeros((cam.SIZE - 1))
-        acceleration = np.zeros((cam.SIZE - 2))
-        jerk = np.zeros((cam.SIZE - 3))
-
-        for i in range(cam.SIZE - 1):
-            velocity[i] = (cam.profile[i + 1] - cam.profile[i]) / degree_per_sample
+        velocity = seamless_convolve(cam.profile, diff_kernel)
+        velocity = seamless_convolve(velocity, ave_kernel)
         self.stats["velocity"] = velocity
 
-        for i in range(cam.SIZE - 2):
-            acceleration[i] = (velocity[i + 1] - velocity[i]) / degree_per_sample
-        self.stats["acceleration"] = acceleration
+        accel = seamless_convolve(velocity, diff_kernel)
+        accel = seamless_convolve(accel, ave_kernel)
+        self.stats["acceleration"] = accel
 
-        for i in range(cam.SIZE - 3):
-            jerk[i] = (acceleration[i + 1] - acceleration[i]) / degree_per_sample
+        jerk = seamless_convolve(accel, diff_kernel)
+        jerk = seamless_convolve(jerk, ave_kernel)
         self.stats["jerk"] = jerk
