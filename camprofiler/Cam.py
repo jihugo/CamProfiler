@@ -5,6 +5,7 @@ from typing import Optional
 from camprofiler.protocol import CamProtocol
 from camprofiler.utilities import circular_convolve
 from stl import mesh
+import sympy as sp
 
 
 class Cam(CamProtocol):
@@ -218,6 +219,50 @@ class Cam(CamProtocol):
         kernel = np.ones(kernel_size) / kernel_size
         for i in range(num_iterations):
             self.profile = circular_convolve(self.profile, kernel)
+
+    def set_profile_with_function(
+        self,
+        function: sp.Expr,
+        variable: sp.Symbol,
+        function_start: float = 0,
+        function_end: float = 1,
+        cam_start: float = 0,
+        cam_end: float = 360,
+    ) -> None:
+        """Use a function to set the cam profile
+
+        Parameters
+        ----------
+        function : sp.Expr
+            Function as SymPy expression
+
+        variable : sp.Symbol
+            The variable that defines the domain of the function
+
+        function_start : float, default = 0
+            The left bound of the domain of the function
+
+        function_end : float, default = 1
+            The right bound of the domain of the function
+
+        cam_start : float, default = 0
+            Angular value (0 - 360) that marks the start of the segment.
+            Curve will be fitted to [start, end).
+
+        cam_end : float, default = 360
+            Angular value (0 - 360) that marks the end of the segment.
+            Curve will be fitted to [start, end).
+        """
+
+        index = int(cam_start / 360 * self.SIZE + 0.5)
+        ending_index = int(cam_end / 360 * self.SIZE + 0.5)
+        n = ending_index - index
+        t_arr = np.linspace(
+            start=float(function_start), stop=float(function_end), num=n
+        )
+        for _, t in enumerate(t_arr):
+            self.profile[index] = function.subs(variable, t)
+            index += 1
 
     def get_2D(
         self,
