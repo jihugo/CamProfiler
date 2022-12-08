@@ -199,27 +199,6 @@ class Cam(CamProtocol):
             for n, c in enumerate(coefficients):
                 self.profile[x + starting_index] += c * scaled_x**n
 
-    def rolling_average_smoothen(
-        self, kernel_size_in_degrees: int = 3, num_iterations: int = 2
-    ):
-        """Use rolling average to smoothen cam curve by circular convolution
-
-        Parameters
-        ----------
-        kernel_size_in_degrees : int, default = 3
-            Kernel size in degrees of cam rotation
-
-        num_iterations : int, default = 2
-            Number of times the rolling average is applied
-        """
-        kernel_size = int(kernel_size_in_degrees / 360 * self.SIZE)
-        if kernel_size % 2 == 0:
-            kernel_size += 1
-
-        kernel = np.ones(kernel_size) / kernel_size
-        for i in range(num_iterations):
-            self.profile = circular_convolve(self.profile, kernel)
-
     def set_profile_with_function(
         self,
         function: sp.Expr,
@@ -263,6 +242,27 @@ class Cam(CamProtocol):
         for _, t in enumerate(t_arr):
             self.profile[index] = function.subs(variable, t)
             index += 1
+
+    def rolling_average_smoothen(
+        self, kernel_size_in_degrees: int = 3, num_iterations: int = 2
+    ):
+        """Use rolling average to smoothen cam curve by circular convolution
+
+        Parameters
+        ----------
+        kernel_size_in_degrees : int, default = 3
+            Kernel size in degrees of cam rotation
+
+        num_iterations : int, default = 2
+            Number of times the rolling average is applied
+        """
+        kernel_size = int(kernel_size_in_degrees / 360 * self.SIZE)
+        if kernel_size % 2 == 0:
+            kernel_size += 1
+
+        kernel = np.ones(kernel_size) / kernel_size
+        for i in range(num_iterations):
+            self.profile = circular_convolve(self.profile, kernel)
 
     def get_2D(
         self,
