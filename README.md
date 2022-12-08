@@ -5,6 +5,7 @@ Goals
     -   [X] Straight line fit
     -   [X] Polynomial fit
     -   [ ] Sinusoidal fit
+    -   [X] Apply function on cam curve
     -   [ ] Smart piece-wise?
 -   [X] Circular convolution
 -   [ ] Further modify cam curve
