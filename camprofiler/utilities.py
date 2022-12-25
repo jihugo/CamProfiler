@@ -12,9 +12,7 @@ def circular_convolve(A: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     k = kernel.shape[0]
 
     if k % 2 == 0:
-        warnings.warn(
-            "Convolution kernel is an even number, convolution result will be shifted."
-        )
+        warnings.warn("Convolution kernel size is an even, so result is shifted.")
 
     tip = np.concatenate([A[-(k - 1) :], A[: k - 1]])
 
