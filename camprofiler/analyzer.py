@@ -4,7 +4,7 @@ __all__ = ["Analyzer"]
 import numpy as np
 from camprofiler.protocol import CamProtocol
 from camprofiler.utilities import circular_convolve
-from typing import *
+from typing import Dict
 
 
 class Analyzer:
@@ -27,9 +27,9 @@ class Analyzer:
         cam: CamProtocol
             Perform analysis on this cam.
         """
-        self.get_PVAJ(cam)
+        self.get_pvaj(cam)
 
-    def get_PVAJ(self, cam: CamProtocol, **kwargs):
+    def get_pvaj(self, cam: CamProtocol, **kwargs):
         """Calculate position, velocity, acceleration, and jerk using convolution
         Note: higher definition cam profile results in more accurate results.
         Note: derivative is taken with respect to angle in radians
