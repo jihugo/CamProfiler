@@ -1,10 +1,10 @@
 """Module containing Analyzer object"""
 __all__ = ["Analyzer"]
 
+from typing import Dict
 import numpy as np
 from camprofiler.protocol import CamProtocol
 from camprofiler.utilities import circular_convolve
-from typing import Dict
 
 
 class Analyzer:
