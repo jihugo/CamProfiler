@@ -38,10 +38,10 @@ class Analyzer:
         cam : CamProtocol
             Perform calculations on this cam
 
-        stride : float, default = 0.1
+        stride : float, default = 0.5
 
         """
-        stride = kwargs["stride"] if "stride" in kwargs else 0.1
+        stride = kwargs["stride"] if "stride" in kwargs else 0.5
         deg_per_sample = 2 * np.pi / cam.SIZE
         k = int(stride / deg_per_sample)
         k = np.max([k, 3])
