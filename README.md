@@ -22,3 +22,4 @@ Goals
     -   [ ] Discontinuity alert
 -   [X] Create 3D cam model 
 -   [ ] Generate cam design with set parameters
+-   [ ] Fix linting
