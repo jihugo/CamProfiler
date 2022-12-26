@@ -1,3 +1,4 @@
+"""Module containing Cam object"""
 __all__ = ["Cam"]
 
 import numpy as np
@@ -22,16 +23,14 @@ class Cam(CamProtocol):
     """
 
     def __init__(self, size: int = 36000, profile: Optional[np.ndarray] = None):
+        CamProtocol.__init__(self)
         self.SIZE = size
         self.profile = np.ones((size))
         if profile is not None:
             self.set_profile_with_straight_lines(profile)
 
     def set_profile_with_straight_lines(
-        self,
-        profile: np.ndarray,
-        start: float = 0.0,
-        end: float = 360.0,
+        self, profile: np.ndarray, start: float = 0.0, end: float = 360.0
     ):
         """Set a segment of the cam profile to straight lines defined by profile
 
@@ -197,7 +196,7 @@ class Cam(CamProtocol):
                 / 2
             ) * x_range + x_start
             for n, c in enumerate(coefficients):
-                self.profile[x + starting_index] += c * scaled_x**n
+                self.profile[x + starting_index] += c * scaled_x ** n
 
     def set_profile_with_function(
         self,
@@ -264,11 +263,7 @@ class Cam(CamProtocol):
         for i in range(num_iterations):
             self.profile = circular_convolve(self.profile, kernel)
 
-    def get_2D(
-        self,
-        offset: float = 0.0,
-        scale: float = 1.0,
-    ) -> np.ndarray:
+    def get_2D(self, offset: float = 0.0, scale: float = 1.0) -> np.ndarray:
         """Get 2D geometry of cam
 
         Parameters
