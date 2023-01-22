@@ -16,11 +16,10 @@ numpy-stl = "^3.0.0"
 matplotlib = "^3.6.3"
 pylint = "^2.4.4"
 
-[tool.pylint.'MESSAGES CONTROL']
-disable = disable = """
-    too-many-arguments,
-    import-error
-"""
+[tool.pylint."MESSAGES CONTROL"]
+disable = '''too-many-arguments,
+    import-error,
+    '''
 
 [tool.pylint.REFACTORING]
 max-nested-blocks = 5
