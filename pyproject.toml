@@ -17,7 +17,10 @@ matplotlib = "^3.6.3"
 pylint = "^2.4.4"
 
 [tool.pylint.'MESSAGES CONTROL']
-disable = "too-many-arguments", "import-error"
+disable = disable = """
+    too-many-arguments,
+    import-error
+"""
 
 [tool.pylint.REFACTORING]
 max-nested-blocks = 5
