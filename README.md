@@ -22,4 +22,7 @@ Goals
     -   [ ] Discontinuity alert
 -   [X] Create 3D cam model 
 -   [ ] Generate cam design with set parameters
+
+To-do's:
 -   [ ] Fix linting
+-   [ ] Rewrite cam.py to use more existing numpy vectorized functions
