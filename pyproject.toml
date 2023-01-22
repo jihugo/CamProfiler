@@ -15,8 +15,9 @@ numpy-stl = "^3.0.0"
 [tool.poetry.group.dev.dependencies]
 matplotlib = "^3.6.3"
 
-[tool.pylint.main]
-
+[tool.pylint.master]
+unsafe-load-any-extension=no
+extension-pkg-whitelist=numpy,cv2
 
 [build-system]
 requires = ["poetry-core"]
