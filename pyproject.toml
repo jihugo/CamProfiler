@@ -14,9 +14,17 @@ numpy-stl = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 matplotlib = "^3.6.3"
+pylint = "^2.4.4"
 
 [tool.pylint.'MESSAGES CONTROL']
 disable = "too-many-arguments"
+
+[tool.pylint.dependencies]
+python = "^3.8"
+numpy = "^1.24.1"
+sympy = "^1.11.1"
+numpy-stl = "^3.0.0"
+matplotlib = "^3.6.3"
 
 [build-system]
 requires = ["poetry-core"]
