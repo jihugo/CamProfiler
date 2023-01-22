@@ -1,21 +1,20 @@
 [tool.poetry]
 name = "camprofiler"
-version = "0.0.1"
-description = "This guy is too lazy, nothing is written here..."
-authors = ["Hugo Ji <yugeji2@illinois.edu>"]
-packages = [
-    { include = "camprofiler" },
-]
+version = "0.1.0"
+description = ""
+authors = ["jihugo <yugeji2@illinois.edu>"]
+license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-numpy = "^1.23.5"
-matplotlib = "^3.6.2"
+python = "^3.8"
+numpy = "^1.24.1"
+sympy = "^1.11.1"
+numpy-stl = "^3.0.0"
 
-[tool.poetry.dev-dependencies]
-numpy = "^1.23.5"
-matplotlib = "^3.6.2"
+[tool.poetry.group.dev.dependencies]
+matplotlib = "^3.6.3"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
