@@ -18,8 +18,6 @@ pylint = "^2.4.4"
 
 [tool.pylint.'MESSAGES CONTROL']
 disable = "too-many-arguments"
-
-[tool.pylint.'MESSAGES CONTROL']
 disable = import-error
 
 [tool.pylint.REFACTORING]
