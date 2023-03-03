@@ -1,12 +1,14 @@
 """Module containing Cam object"""
 __all__ = ["Cam"]
 
-import numpy as np
 from typing import Optional
+
+from stl import mesh
+import numpy as np
+import sympy as sp
+
 from camprofiler.protocol import CamProtocol
 from camprofiler.utilities import circular_convolve
-from stl import mesh
-import sympy as sp
 
 
 class Cam(CamProtocol):
@@ -20,76 +22,68 @@ class Cam(CamProtocol):
     profile : np.ndarray, default = None
         Apply a cam profile.
         Flat profile is applied by default.
+
+    Attributes
+    ----------
+    SIZE : int
+    profile : ndarray
     """
 
-    def __init__(self, size: int = 36000, profile: Optional[np.ndarray] = None):
-        CamProtocol.__init__(self)
-        self.SIZE = size
-        self.profile = np.ones((size))
-        if profile is not None:
-            self.set_profile_with_straight_lines(profile)
+    __slots__ = ["SIZE", "profile"]
 
-    def set_profile_with_straight_lines(
-        self, profile: np.ndarray, start: float = 0.0, end: float = 360.0
-    ):
+    def __init__(self, size: int = 36000):
+        CamProtocol.__init__(self)
+        self.index_per_degree = size / 360
+        self.profile = np.ones((size))
+
+    def set_profile_linear(
+        self,
+        profile: np.ndarray,
+        start: float = 0.0,
+        end: float = 360.0,
+        resize: bool = False,
+    ) -> None:
         """Set a segment of the cam profile to straight lines defined by profile
 
         Parameters
         ----------
-        profile : np.ndarray
-            1D Numpy array or n x 2 Numpy array that define points.
-            1D array represents evenly-spaced values
-            n x 2 array contains angle in the first column and values in second
-                column, these points must be in order with increasing angle.
+        profile : 1D ndarray
+        start, end : float, default = 0, 360
+        resize : bool, default = False
+            Resize cam object to match the size of input profile.
+            If False, points will be linearly interpolated.
 
-        start : float, default = 0.0
-            Angular value (0 - 360) that marks the start of the segment.
-            Curve will be fitted to [start, end).
-
-        end : float, default = 360.0
-            Angular value (0 - 360) that marks the end of the segment.
-            Curve will be fitted to [start, end).
         """
+        assert len(profile.shape) == 1
+        input_size = profile.shape[0]
 
-        if len(profile.shape) != 1:
-            if profile.shape[1] != 2:
-                raise SyntaxError("Input profile has incorrect format.")
-            length = profile.shape[0]
-
-        # convert 1D into 2D
-        else:
-            length = profile.shape[0]
-            profile = np.array([np.arange(start=0, stop=length), profile]).transpose()
-
-        # Apply 2D points
-        starting_index = int(start / 360 * self.SIZE)
-        ending_index = int(end / 360 * self.SIZE)
-
-        idx1 = starting_index
-        dummy_profile = np.concatenate([self.profile, [0]])
-        starting_x = profile[0][0]
-        ending_x = profile[-1][0]
-        span = ending_x - starting_x
-        for i in range(length - 1):
-            curr_point = profile[i]
-            next_point = profile[i + 1]
-
-            idx0 = idx1
-            idx1 = (
-                starting_index
-                + int(
-                    (next_point[0] - starting_x)
-                    / (span)
-                    * (ending_index - starting_index)
-                    + 0.5
-                )
-                + 1
+        if resize:
+            new_index_per_degree = input_size / (end - start)
+            self.profile = np.concatenate(
+                [
+                    self._linear_interpolate(
+                        self.profile[: self.index_per_degree * start],
+                        new_index_per_degree * start,
+                    ),
+                    profile,
+                    self._linear_interpolate(
+                        self.profile[self.index_per_degree * end :],
+                        new_index_per_degree * (360 - end),
+                    ),
+                ]
             )
+            self.index_per_degree = new_index_per_degree
+            return
 
-            dummy_profile[idx0:idx1] = np.linspace(
-                start=curr_point[1], stop=next_point[1], num=int(idx1 - idx0)
-            )
-        self.profile = dummy_profile[:-1]
+        start_idx = start * self.index_per_degree
+        end_idx = end * self.index_per_degree
+
+        self.profile[start_idx:end_idx] = self._linear_interpolate(
+            profile, end_idx - start_idx
+        )
+
+    def _linear_interpolate(self, array: np.ndarray, num: int) -> np.ndarray:
+        return np.array([])
 
     def set_profile_polynomial_with_points(
         self,
@@ -196,7 +190,7 @@ class Cam(CamProtocol):
                 / 2
             ) * x_range + x_start
             for n, c in enumerate(coefficients):
-                self.profile[x + starting_index] += c * scaled_x ** n
+                self.profile[x + starting_index] += c * scaled_x**n
 
     def set_profile_with_function(
         self,
@@ -279,13 +273,13 @@ class Cam(CamProtocol):
             Second row contains y coordinates
         """
 
-        twoD = np.ndarray((2, self.SIZE))
+        two_d = np.ndarray((2, self.SIZE))
         for i, lift in enumerate(self.profile):
             r = offset + scale * lift
             theta = np.radians(360 * i / self.SIZE)
-            twoD[0][i] = r * np.cos(theta)
-            twoD[1][i] = r * np.sin(theta)
-        return twoD
+            two_d[0][i] = r * np.cos(theta)
+            two_d[1][i] = r * np.sin(theta)
+        return two_d
 
     def to_stl(
         self,
