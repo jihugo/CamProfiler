@@ -1,12 +1,11 @@
 """Cam Protocol"""
 __all__ = ["CamProtocol"]
 
-from typing import Optional, Protocol
-import numpy as np
+from typing import Protocol, Iterable
 
 
 class CamProtocol(Protocol):
     """Cam Protocol class"""
 
     index_per_degree: int = ...
-    profile: np.ndarray = ...
+    profile: Iterable[float] = ...
