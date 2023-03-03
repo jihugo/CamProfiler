@@ -83,7 +83,9 @@ class Cam(CamProtocol):
         )
 
     def _linear_interpolate(self, array: np.ndarray, num: int) -> np.ndarray:
-        return np.array([])
+        return np.interp(
+            x=np.linspace(0, 1, num), xp=np.linspace(0, 1, array.shape[0]), fp=array
+        )
 
     def set_profile_polynomial_with_points(
         self,
