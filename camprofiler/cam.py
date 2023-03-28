@@ -1,7 +1,6 @@
 """Module containing Cam object"""
 __all__ = ["Cam"]
 
-from typing import Optional
 
 from stl import mesh
 import numpy as np
@@ -32,8 +31,9 @@ class Cam(CamProtocol):
     __slots__ = ["SIZE", "profile"]
 
     def __init__(self, size: int = 36000):
+        # pylint: disable=invalid-name
         CamProtocol.__init__(self)
-        self.index_per_degree = size / 360
+        self.SIZE = size
         self.profile = np.ones((size))
 
     def set_profile_linear(
@@ -57,26 +57,27 @@ class Cam(CamProtocol):
         assert len(profile.shape) == 1
         input_size = profile.shape[0]
 
+        old_index_per_degree = int(self.SIZE / 360)
+
         if resize:
             new_index_per_degree = input_size / (end - start)
             self.profile = np.concatenate(
                 [
                     self._linear_interpolate(
-                        self.profile[: self.index_per_degree * start],
+                        self.profile[: old_index_per_degree * start],
                         new_index_per_degree * start,
                     ),
                     profile,
                     self._linear_interpolate(
-                        self.profile[self.index_per_degree * end :],
+                        self.profile[old_index_per_degree * end :],
                         new_index_per_degree * (360 - end),
                     ),
                 ]
             )
-            self.index_per_degree = new_index_per_degree
             return
 
-        start_idx = start * self.index_per_degree
-        end_idx = end * self.index_per_degree
+        start_idx = start * old_index_per_degree
+        end_idx = end * old_index_per_degree
 
         self.profile[start_idx:end_idx] = self._linear_interpolate(
             profile, end_idx - start_idx
@@ -207,10 +208,10 @@ class Cam(CamProtocol):
 
         Parameters
         ----------
-        function : sp.Expr
+        function : SymPy Expression
             Function as SymPy expression
 
-        variable : sp.Symbol
+        variable : SymPy Symbol
             The variable that defines the domain of the function
 
         function_start : float, default = 0
@@ -230,12 +231,12 @@ class Cam(CamProtocol):
 
         index = int(cam_start / 360 * self.SIZE + 0.5)
         ending_index = int(cam_end / 360 * self.SIZE + 0.5)
-        n = ending_index - index
+        num_indices = ending_index - index
         t_arr = np.linspace(
-            start=float(function_start), stop=float(function_end), num=n
+            start=float(function_start), stop=float(function_end), num=num_indices
         )
-        for _, t in enumerate(t_arr):
-            self.profile[index] = function.subs(variable, t)
+        for _, t_i in enumerate(t_arr):
+            self.profile[index] = function.subs(variable, t_i)
             index += 1
 
     def rolling_average_smoothen(
@@ -256,10 +257,10 @@ class Cam(CamProtocol):
             kernel_size += 1
 
         kernel = np.ones(kernel_size) / kernel_size
-        for i in range(num_iterations):
+        for _ in range(num_iterations):
             self.profile = circular_convolve(self.profile, kernel)
 
-    def get_2D(self, offset: float = 0.0, scale: float = 1.0) -> np.ndarray:
+    def get_2d(self, offset: float = 0.0, scale: float = 1.0) -> np.ndarray:
         """Get 2D geometry of cam
 
         Parameters
@@ -270,18 +271,15 @@ class Cam(CamProtocol):
 
         Returns
         -------
-        2D numpy array.
-            First row contains x coordinates
-            Second row contains y coordinates
+        Numpy array of tuples for (x, y) coordinate
         """
 
-        two_d = np.ndarray((2, self.SIZE))
-        for i, lift in enumerate(self.profile):
+        def get_x_y(idx, lift) -> tuple:
             r = offset + scale * lift
-            theta = np.radians(360 * i / self.SIZE)
-            two_d[0][i] = r * np.cos(theta)
-            two_d[1][i] = r * np.sin(theta)
-        return two_d
+            theta = np.radians(360 * idx / self.SIZE)
+            return (r * np.cos(theta), r * np.sin(theta))
+
+        return np.array([get_x_y(idx, lift) for idx, lift in enumerate(self.profile)])
 
     def to_stl(
         self,
@@ -305,17 +303,18 @@ class Cam(CamProtocol):
         thickness : float
             Thickness of cam stl
         """
-        twoD = self.get_2D(offset, scale)
+        # pylint: disable=invalid-name
+        two_d = self.get_2d(offset, scale)
         solid = mesh.Mesh(np.zeros(((self.SIZE) * 6), dtype=mesh.Mesh.dtype))
 
         O0 = np.array([0, 0, 0])
         O1 = np.array([0, 0, thickness])
 
-        p1 = np.array([twoD[0][0], twoD[1][0], 0])
+        p1 = np.array([two_d[0][0], two_d[1][0], 0])
         p3 = np.array([p1[0], p1[1], thickness])
         for i in range(self.SIZE - 1):
             p0 = p1
-            p1 = np.array([twoD[0][i + 1], twoD[1][i + 1], 0])
+            p1 = np.array([two_d[0][i + 1], two_d[1][i + 1], 0])
 
             p2 = p3
             p3 = np.array([p1[0], p1[1], thickness])
@@ -330,7 +329,7 @@ class Cam(CamProtocol):
         # Stick the last 4 points:
         p0 = p1
         p2 = p3
-        p1 = np.array([twoD[0][0], twoD[1][0], 0])
+        p1 = np.array([two_d[0][0], two_d[1][0], 0])
         p3 = np.array([p1[0], p1[1], thickness])
 
         i += 1
