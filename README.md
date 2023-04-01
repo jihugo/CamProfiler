@@ -6,11 +6,11 @@ Goals
     -   [X] Polynomial fit
     -   [ ] Sinusoidal fit
     -   [X] Apply function on cam curve
-    -   [ ] Smart piece-wise?
+    -   [ ] Cosine piece-wise
+    -   [ ] Lagrange interpolation
 -   [X] Circular convolution
 -   [ ] Further modify cam curve
     -   [ ] Experiment with different kernels for smoothening
-    -   [ ] Non-linear scaling
 -   [X] Convert linear cam curve into geometric shape
 -   [ ] Convert geometric shape into linear cam curve
     -   [ ] Detect edge and center
@@ -23,6 +23,3 @@ Goals
 -   [X] Create 3D cam model 
 -   [ ] Generate cam design with set parameters
 
-To-do's:
--   [ ] Fix linting
--   [ ] Rewrite cam.py to use more existing numpy vectorized functions
