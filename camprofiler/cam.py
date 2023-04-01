@@ -1,6 +1,7 @@
 """Module containing Cam object"""
 __all__ = ["Cam"]
 
+from typing import List
 
 from stl import mesh
 import numpy as np
@@ -76,8 +77,8 @@ class Cam(CamProtocol):
             )
             return
 
-        start_idx = start * old_index_per_degree
-        end_idx = end * old_index_per_degree
+        start_idx = int(start * old_index_per_degree)
+        end_idx = int(end * old_index_per_degree)
 
         self.profile[start_idx:end_idx] = self._linear_interpolate(
             profile, end_idx - start_idx
@@ -86,6 +87,45 @@ class Cam(CamProtocol):
     def _linear_interpolate(self, array: np.ndarray, num: int) -> np.ndarray:
         return np.interp(
             x=np.linspace(0, 1, num), xp=np.linspace(0, 1, array.shape[0]), fp=array
+        )
+
+    def set_profile_lagrange_polynomial(
+        self, points: List[List[float]], start: float = 0.0, end: float = 360.0
+    ) -> None:
+        """Set profile using Lagrange polynomial
+
+        Parameters
+        ----------
+        points : List[List[float]]
+            Each each element should be a subscriptable object where 1st and 2nd element
+            represents x and y
+        """
+
+        # pylint: disable=invalid-name
+        x = sp.symbols("x")
+
+        def get_numer(idx):
+            prod_terms = np.array([x - points[j][0] for j in range(len(points))])
+            prod_terms[idx] = 1
+            return np.product(prod_terms)
+
+        def get_denom(idx):
+            prod_terms = np.array(
+                [points[idx][0] - points[j][0] for j in range(len(points))]
+            )
+            prod_terms[idx] = 1
+            return np.product(prod_terms)
+
+        sum_terms = np.array(
+            [points[i][1] * get_numer(i) / get_denom(i) for i in range(len(points))]
+        )
+        self.set_profile_with_function(
+            function=np.sum(sum_terms),
+            variable=x,
+            function_start=points[0][0],
+            function_end=points[-1][0],
+            cam_start=start,
+            cam_end=end,
         )
 
     def set_profile_polynomial_with_points(
@@ -184,6 +224,7 @@ class Cam(CamProtocol):
             (ending_index - starting_index)
         )
         x_range = x_end - x_start
+        # pylint: disable=invalid-name
         for x in range(ending_index - starting_index):
             scaled_x = (
                 (
@@ -274,6 +315,7 @@ class Cam(CamProtocol):
         Numpy array of tuples for (x, y) coordinate
         """
 
+        # pylint: disable=invalid-name
         def get_x_y(idx, lift) -> tuple:
             r = offset + scale * lift
             theta = np.radians(360 * idx / self.SIZE)
