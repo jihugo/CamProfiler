@@ -9,3 +9,9 @@ class CamProtocol(Protocol):
 
     profile: Iterable[float] = ...
     SIZE: int = ...
+
+    def get_2d(self):
+        """Get 2D cartesian coordinates of cam"""
+
+    def get_stl(self):
+        """Get STL file of cam"""
